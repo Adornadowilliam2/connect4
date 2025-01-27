@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>MFI - Connect 4</title>
+  <link rel="shortcut icon"
+    href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTttplfD2URZ1M7WXWtFqH2pFBhrmIbYVZLwg&s"
+    type="image/x-icon">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    * {
+      padding: 0;
+      margin: 0;
+      font-family: "Poppins", serif;
+    }
+
+    main {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+
+      background-color: #f4f4f4;
+    }
+
+    .game-container {
+      text-align: center;
+    }
+
+    .board {
+      display: grid;
+      grid-template-columns: repeat(7, 60px);
+      grid-template-rows: repeat(6, 60px);
+      gap: 5px;
+      justify-content: center;
+      margin-bottom: 20px;
+      background-color: blue;
+      outline: 5px blue solid;
+      border: 5px solid blue;
+    }
+
+    .cell {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background-color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .cell.red {
+      background-color: red;
+    }
+
+    .cell.yellow {
+      background-color: yellow;
+    }
+
+    .status {
+      font-size: 1.2em;
+    }
+
+    button {
+      padding: 10px 20px;
+      font-size: 1em;
+      cursor: pointer;
+      background-color: #007BFF;
+      color: white;
+      border: none;
+      border-radius: 5px;
+    }
+
+    nav img {
+      width: 50px;
+      border-radius: 50px;
+    }
+
+    nav {
+      background-color: #007BFF;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      color: white;
+    }
+
+    .scoreboard {
+      margin-top: 20px;
+      font-size: 1.2em;
+    }
+  </style>
+</head>
+
+<body>
+  <nav><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTttplfD2URZ1M7WXWtFqH2pFBhrmIbYVZLwg&s"
+      alt=""><span>MFI - Connect 4 Game</span></nav>
+  <main>
+    <div class="game-container">
+      <h1>Connect 4 Game</h1>
+      <div class="board" id="board"></div>
+      <div class="status">
+        <p id="game-status">Player 1's turn (Red)</p>
+        <button id="reset" onclick="resetGame()">Restart Game</button>
+      </div>
+      <div class="scoreboard">
+        <p id="scoreboard">Player 1 (Red): 0 Wins | Player 2 (Yellow): 0 Wins</p>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentPlayer = 'red'; // Player 1 starts (red)
+    let gameActive = true;
+    let player1Wins = 0;
+    let player2Wins = 0;
+    const rows = 6;
+    const columns = 7;
+    let board = Array.from({ length: rows }, () => Array(columns).fill(null));
+
+    const boardElement = document.getElementById('board');
+    const gameStatus = document.getElementById('game-status');
+    const scoreboard = document.getElementById('scoreboard');
+
+    function createBoard() {
+      boardElement.innerHTML = ''; // Clear the board
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < columns; col++) {
+          const cell = document.createElement('div');
+          cell.classList.add('cell');
+          cell.dataset.row = row;
+          cell.dataset.col = col;
+          cell.addEventListener('click', handleCellClick);
+          boardElement.appendChild(cell);
+        }
+      }
+    }
+
+    function handleCellClick(event) {
+      if (!gameActive) return;
+
+      const col = event.target.dataset.col;
+      const column = board.map(row => row[col]); // Get the column values
+
+      // Find the first empty row in the selected column
+      const emptyRow = column.lastIndexOf(null);
+
+      if (emptyRow === -1) return; // Column is full
+
+      // Place the piece
+      board[emptyRow][col] = currentPlayer;
+      const cell = boardElement.children[emptyRow * columns + parseInt(col)];
+      cell.classList.add(currentPlayer);
+
+      if (checkWinner(emptyRow, col)) {
+        // Update the win count and display the winner
+        if (currentPlayer === 'red') {
+          player1Wins++;
+          alert('Player 1 (Red) Wins!');
+        } else {
+          player2Wins++;
+          alert('Player 2 (Yellow) Wins!');
+        }
+        gameActive = false;
+        updateScoreboard();
+      } else {
+        currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
+        gameStatus.textContent = `${currentPlayer === 'red' ? 'Player 1 (Red)' : 'Player 2 (Yellow)'}'s turn`;
+      }
+    }
+
+    function checkWinner(row, col) {
+      return checkAllDirections(row, col);
+    }
+
+    function checkAllDirections(row, col) {
+      // Check horizontal, vertical, diagonal /
+      return (
+        checkDirection(row, col, 1, 0) || // Horizontal
+        checkDirection(row, col, 0, 1) || // Vertical
+        checkDirection(row, col, 1, 1) || // Diagonal /
+        checkDirection(row, col, 1, -1)   // Diagonal \
+      );
+    }
+
+    function checkDirection(row, col, rowDir, colDir) {
+      let count = 1; // Start with the current piece
+
+      // Check one direction (forwards)
+      for (let i = 1; i < 4; i++) {
+        const r = row + i * rowDir;
+        const c = col + i * colDir;
+        if (r < 0 || r >= rows || c < 0 || c >= columns || board[r][c] !== currentPlayer) break;
+        count++;
+      }
+
+      // Check the opposite direction (backwards)
+      for (let i = 1; i < 4; i++) {
+        const r = row - i * rowDir;
+        const c = col - i * colDir;
+        if (r < 0 || r >= rows || c < 0 || c >= columns || board[r][c] !== currentPlayer) break;
+        count++;
+      }
+
+      return count >= 4;
+    }
+
+    function resetGame() {
+      board = Array.from({ length: rows }, () => Array(columns).fill(null));
+      gameActive = true;
+      currentPlayer = 'red';
+      gameStatus.textContent = "Player 1's turn (Red)";
+      createBoard();
+    }
+
+    function updateScoreboard() {
+      scoreboard.textContent = `Player 1 (Red): ${player1Wins} Wins | Player 2 (Yellow): ${player2Wins} Wins`;
+    }
+
+    createBoard();
+  </script>
+</body>
+
+</html>
