@@ -1,4 +1,4 @@
-let currentPlayer = 'red'; // Player 1 starts (red)
+let currentPlayer = 'red';
 let gameActive = true;
 let player1Wins = 0;
 let player2Wins = 0;
@@ -10,9 +10,8 @@ const boardElement = document.getElementById('board');
 const gameStatus = document.getElementById('game-status');
 const scoreboard = document.getElementById('scoreboard');
 
-// Create the game board
 function createBoard() {
-  boardElement.innerHTML = ''; // Clear the board
+  boardElement.innerHTML = '';
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < columns; col++) {
       const cell = document.createElement('div');
@@ -25,26 +24,21 @@ function createBoard() {
   }
 }
 
-// Handle a cell click event
 function handleCellClick(event) {
   if (!gameActive) return;
 
   const col = event.target.dataset.col;
-  const column = board.map(row => row[col]); // Get the column values
+  const column = board.map(row => row[col]);
 
-  // Find the first empty row in the selected column
   const emptyRow = column.lastIndexOf(null);
 
-  if (emptyRow === -1) return; // Column is full
+  if (emptyRow === -1) return;
 
-  // Place the piece
   board[emptyRow][col] = currentPlayer;
   const cell = boardElement.children[emptyRow * columns + parseInt(col)];
   cell.classList.add(currentPlayer);
 
-  // Check if the current player has won
   if (checkWinner(emptyRow, col)) {
-    // Update the win count and display the winner
     if (currentPlayer === 'red') {
       player1Wins++;
       alert('Player 1 (Red) Wins!');
@@ -55,28 +49,24 @@ function handleCellClick(event) {
     gameActive = false;
     updateScoreboard();
   } else {
-    // Switch players
     currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
     gameStatus.textContent = `${currentPlayer === 'red' ? 'Player 1 (Red)' : 'Player 2 (Yellow)'}'s turn`;
   }
 }
 
-// Check if there is a winner
 function checkWinner(row, col) {
   return (
-    checkDirection(row, col, 1, 0) || // Horizontal (left-right)
-    checkDirection(row, col, 0, 1) || // Vertical (downwards)
-    checkDirection(row, col, -1, 0) || // Vertical (upwards)
-    checkDiagonal(row, col, 1, 1) || // Diagonal (top-left to bottom-right)
-    checkDiagonal(row, col, -1, 1)   // Diagonal (bottom-left to top-right)
+    checkDirection(row, col, 1, 0) ||
+    checkDirection(row, col, 0, 1) ||
+    checkDirection(row, col, -1, 0) ||
+    checkDiagonal(row, col, 1, 1) ||
+    checkDiagonal(row, col, -1, 1)
   );
 }
 
-// Check for horizontal and vertical connection
 function checkDirection(row, col, rowDir, colDir) {
-  let count = 1; // Start with the current piece
+  let count = 1;
 
-  // Check one direction (forward)
   for (let i = 1; i < 4; i++) {
     const r = row + i * rowDir;
     const c = col + i * colDir;
@@ -84,7 +74,6 @@ function checkDirection(row, col, rowDir, colDir) {
     count++;
   }
 
-  // Check in the opposite direction (backward)
   for (let i = 1; i < 4; i++) {
     const r = row - i * rowDir;
     const c = col - i * colDir;
@@ -92,14 +81,12 @@ function checkDirection(row, col, rowDir, colDir) {
     count++;
   }
 
-  return count >= 4; // We need 4 connected pieces
+  return count >= 4;
 }
 
-// Check for diagonal connections
 function checkDiagonal(row, col, rowDir, colDir) {
-  let count = 1; // Start with the current piece
+  let count = 1;
 
-  // Check one direction (forward)
   for (let i = 1; i < 4; i++) {
     const r = row + i * rowDir;
     const c = col + i * colDir;
@@ -107,7 +94,6 @@ function checkDiagonal(row, col, rowDir, colDir) {
     count++;
   }
 
-  // Check in the opposite direction (backward)
   for (let i = 1; i < 4; i++) {
     const r = row - i * rowDir;
     const c = col - i * colDir;
@@ -115,10 +101,9 @@ function checkDiagonal(row, col, rowDir, colDir) {
     count++;
   }
 
-  return count >= 4; // We need 4 connected pieces
+  return count >= 4;
 }
 
-// Reset the game
 function resetGame() {
   board = Array.from({ length: rows }, () => Array(columns).fill(null));
   gameActive = true;
@@ -127,7 +112,6 @@ function resetGame() {
   createBoard();
 }
 
-// Update the scoreboard
 function updateScoreboard() {
   scoreboard.textContent = `Player 1 (Red): ${player1Wins} Wins | Player 2 (Yellow): ${player2Wins} Wins`;
 }
