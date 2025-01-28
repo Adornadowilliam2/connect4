@@ -4,7 +4,7 @@ let player1Wins = 0;
 let player2Wins = 0;
 const rows = 6;
 const columns = 7;
-var notyf = new Notyf();
+let notyf = new Notyf();
 let board = Array.from({ length: rows }, () => Array(columns).fill(null));
 
 const boardElement = document.getElementById("board");
