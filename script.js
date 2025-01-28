@@ -4,21 +4,22 @@ let player1Wins = 0;
 let player2Wins = 0;
 const rows = 6;
 const columns = 7;
+var notyf = new Notyf();
 let board = Array.from({ length: rows }, () => Array(columns).fill(null));
 
-const boardElement = document.getElementById('board');
-const gameStatus = document.getElementById('game-status');
-const scoreboard = document.getElementById('scoreboard');
+const boardElement = document.getElementById("board");
+const gameStatus = document.getElementById("game-status");
+const scoreboard = document.getElementById("scoreboard");
 
 function createBoard() {
-  boardElement.innerHTML = '';
+  boardElement.innerHTML = "";
   for (let row = 0; row < rows; row++) {
     for (let col = 0; col < columns; col++) {
-      const cell = document.createElement('div');
-      cell.classList.add('cell');
+      const cell = document.createElement("div");
+      cell.classList.add("cell");
       cell.dataset.row = row;
       cell.dataset.col = col;
-      cell.addEventListener('click', handleCellClick);
+      cell.addEventListener("click", handleCellClick);
       boardElement.appendChild(cell);
     }
   }
@@ -28,7 +29,7 @@ function handleCellClick(event) {
   if (!gameActive) return;
 
   const col = event.target.dataset.col;
-  const column = board.map(row => row[col]);
+  const column = board.map((row) => row[col]);
 
   const emptyRow = column.lastIndexOf(null);
 
@@ -39,18 +40,20 @@ function handleCellClick(event) {
   cell.classList.add(currentPlayer);
 
   if (checkWinner(emptyRow, col)) {
-    if (currentPlayer === 'red') {
+    if (currentPlayer === "red") {
       player1Wins++;
-      alert('Player 1 (Red) Wins!');
+      notyf.success("Player 1 (Red) Wins!");
     } else {
       player2Wins++;
-      alert('Player 2 (Yellow) Wins!');
+      notyf.success("Player 2 (Yellow) Wins!");
     }
     gameActive = false;
     updateScoreboard();
   } else {
-    currentPlayer = currentPlayer === 'red' ? 'yellow' : 'red';
-    gameStatus.textContent = `${currentPlayer === 'red' ? 'Player 1 (Red)' : 'Player 2 (Yellow)'}'s turn`;
+    currentPlayer = currentPlayer === "red" ? "yellow" : "red";
+    gameStatus.textContent = `${
+      currentPlayer === "red" ? "Player 1 (Red)" : "Player 2 (Yellow)"
+    }'s turn`;
   }
 }
 
